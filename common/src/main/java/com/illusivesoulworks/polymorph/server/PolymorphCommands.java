@@ -18,9 +18,10 @@
 package com.illusivesoulworks.polymorph.server;
 
 import com.illusivesoulworks.polymorph.PolymorphConstants;
-import com.illusivesoulworks.polymorph.mixin.core.AccessorSmithingTransformRecipe;
-import com.illusivesoulworks.polymorph.mixin.core.AccessorSmithingTrimRecipe;
 import com.illusivesoulworks.polymorph.platform.Services;
+import com.illusivesoulworks.polymorph.server.wrapper.CraftingRecipeWrapper;
+import com.illusivesoulworks.polymorph.server.wrapper.RecipeWrapper;
+import com.illusivesoulworks.polymorph.server.wrapper.SmithingRecipeWrapper;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -44,14 +45,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SmithingTransformRecipe;
-import net.minecraft.world.item.crafting.SmithingTrimRecipe;
 
 public class PolymorphCommands {
 
@@ -161,177 +158,5 @@ public class PolymorphCommands {
       pOutput.add("");
     }
     return conflicts.size();
-  }
-
-  private static class IngredientWrapper {
-
-    private final Ingredient ingredient;
-
-    private IngredientWrapper(Ingredient pIngredient) {
-      this.ingredient = pIngredient;
-    }
-
-    public Ingredient getIngredient() {
-      return this.ingredient;
-    }
-
-    public boolean matches(IngredientWrapper pIngredient) {
-
-      if (pIngredient == null) {
-        return false;
-      }
-      Ingredient otherIngredient = pIngredient.getIngredient();
-
-      if (otherIngredient == null) {
-        return false;
-      } else if (otherIngredient == Ingredient.EMPTY) {
-        return this.ingredient == Ingredient.EMPTY;
-      } else {
-        ItemStack[] stacks = this.ingredient.getItems();
-
-        for (ItemStack otherStack : pIngredient.getIngredient().getItems()) {
-
-          for (ItemStack stack : stacks) {
-
-            if (ItemStack.matches(stack, otherStack)) {
-              return true;
-            }
-          }
-        }
-        return false;
-      }
-    }
-  }
-
-  private static class RecipeWrapper {
-
-    private final Recipe<?> recipe;
-    private final List<IngredientWrapper> ingredients;
-
-    private RecipeWrapper(Recipe<?> pRecipe) {
-      this.recipe = pRecipe;
-      this.ingredients = new ArrayList<>();
-
-      for (Ingredient ingredient : this.recipe.getIngredients()) {
-        IngredientWrapper wrapped = new IngredientWrapper(ingredient);
-        this.ingredients.add(wrapped);
-      }
-    }
-
-    public Recipe<?> getRecipe() {
-      return this.recipe;
-    }
-
-    public ResourceLocation getId() {
-      return this.recipe.getId();
-    }
-
-    public List<IngredientWrapper> getIngredients() {
-      return this.ingredients;
-    }
-
-    public boolean conflicts(RecipeWrapper pOther) {
-
-      if (pOther == null) {
-        return false;
-      } else if (this.getId().equals(pOther.getId())) {
-        return true;
-      } else if (this.ingredients.size() != pOther.getIngredients().size()) {
-        return false;
-      } else {
-        List<IngredientWrapper> otherIngredients = pOther.getIngredients();
-
-        for (int i = 0; i < otherIngredients.size(); i++) {
-
-          if (!otherIngredients.get(i).matches(this.getIngredients().get(i))) {
-            return false;
-          }
-        }
-        return true;
-      }
-    }
-  }
-
-  private static class SmithingRecipeWrapper extends RecipeWrapper {
-
-    private SmithingRecipeWrapper(Recipe<?> pRecipe) {
-      super(pRecipe);
-    }
-
-    @Override
-    public boolean conflicts(RecipeWrapper pOther) {
-      Ingredient template = Ingredient.EMPTY;
-      Ingredient base = Ingredient.EMPTY;
-      Ingredient addition = Ingredient.EMPTY;
-      Ingredient otherTemplate = Ingredient.EMPTY;
-      Ingredient otherBase = Ingredient.EMPTY;
-      Ingredient otherAddition = Ingredient.EMPTY;
-      Recipe<?> recipe = this.getRecipe();
-      Recipe<?> otherRecipe = pOther.getRecipe();
-
-      if (otherRecipe instanceof SmithingTrimRecipe) {
-        AccessorSmithingTrimRecipe accessorSmithingRecipe = (AccessorSmithingTrimRecipe) recipe;
-        template = accessorSmithingRecipe.getTemplate();
-        base = accessorSmithingRecipe.getBase();
-        addition = accessorSmithingRecipe.getAddition();
-      } else if (recipe instanceof SmithingTrimRecipe ||
-          recipe instanceof SmithingTransformRecipe) {
-        AccessorSmithingTransformRecipe accessorSmithingRecipe =
-            (AccessorSmithingTransformRecipe) recipe;
-        template = accessorSmithingRecipe.getTemplate();
-        base = accessorSmithingRecipe.getBase();
-        addition = accessorSmithingRecipe.getAddition();
-      }
-
-      if (otherRecipe instanceof SmithingTrimRecipe) {
-        AccessorSmithingTrimRecipe accessorSmithingRecipe =
-            (AccessorSmithingTrimRecipe) otherRecipe;
-        otherTemplate = accessorSmithingRecipe.getTemplate();
-        otherBase = accessorSmithingRecipe.getBase();
-        otherAddition = accessorSmithingRecipe.getAddition();
-      } else if (otherRecipe instanceof SmithingTransformRecipe) {
-        AccessorSmithingTransformRecipe accessorSmithingRecipe =
-            (AccessorSmithingTransformRecipe) otherRecipe;
-        otherTemplate = accessorSmithingRecipe.getTemplate();
-        otherBase = accessorSmithingRecipe.getBase();
-        otherAddition = accessorSmithingRecipe.getAddition();
-      }
-      IngredientWrapper baseWrapper = new IngredientWrapper(base);
-      IngredientWrapper otherBaseWrapper = new IngredientWrapper(otherBase);
-      IngredientWrapper additionWrapper = new IngredientWrapper(addition);
-      IngredientWrapper otherAdditionWrapper = new IngredientWrapper(otherAddition);
-      IngredientWrapper templateWrapper = new IngredientWrapper(template);
-      IngredientWrapper otherTemplateWrapper = new IngredientWrapper(otherTemplate);
-      return super.conflicts(pOther) &&
-          baseWrapper.matches(otherBaseWrapper) & additionWrapper.matches(otherAdditionWrapper) &&
-          templateWrapper.matches(otherTemplateWrapper);
-    }
-  }
-
-  private static class CraftingRecipeWrapper extends RecipeWrapper {
-
-    private final boolean shaped;
-
-    private CraftingRecipeWrapper(Recipe<?> recipe) {
-      super(recipe);
-      this.shaped = Services.PLATFORM.isShaped(recipe);
-    }
-
-    public boolean isShaped() {
-      return this.shaped;
-    }
-
-    @Override
-    public boolean conflicts(RecipeWrapper pOther) {
-      return super.conflicts(pOther) && isSameShape((CraftingRecipeWrapper) pOther);
-    }
-
-    private boolean isSameShape(CraftingRecipeWrapper other) {
-
-      if (this.shaped && other.isShaped()) {
-        return Services.PLATFORM.isSameShape(this.getRecipe(), other.getRecipe());
-      }
-      return true;
-    }
   }
 }
