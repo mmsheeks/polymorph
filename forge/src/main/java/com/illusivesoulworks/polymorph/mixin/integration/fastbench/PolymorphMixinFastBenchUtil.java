@@ -37,7 +37,7 @@ public class PolymorphMixinFastBenchUtil {
   @Redirect(
       at = @At(
           value = "INVOKE",
-          target = "dev.shadowsoffire/fastbench/util/FastBenchUtil.findRecipe(Lnet/minecraft/world/inventory/CraftingContainer;Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/item/crafting/Recipe;"),
+          target = "dev/shadowsoffire/fastbench/util/FastBenchUtil.findRecipe(Lnet/minecraft/world/inventory/CraftingContainer;Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/item/crafting/Recipe;"),
       method = "slotChangedCraftingGrid",
       remap = false)
   private static Recipe<CraftingContainer> polymorph$findRecipe(CraftingContainer inv, Level world,
