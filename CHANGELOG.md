@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 Prior to version 0.45.0, this project used MCVERSION-MAJORMOD.MAJORAPI.MINOR.PATCH.
 
+## [0.49.3+1.20.1] - 2024.03.30
+### Changed
+- Updated to SpectreLib 0.13.15
+### Fixed
+- [Forge] Fixed mouse click events that caused click-through behavior on the Polymorph output selections
+- Fixed batch crafting not working properly when crafting remainders exist
+- Fixed duplicate outputs appearing in selections [#240](https://github.com/illusivesoulworks/polymorph/issues/240)
+- Fixed `/polymorph conflicts` command errors [#244](https://github.com/illusivesoulworks/polymorph/issues/244)
+
 ## [0.49.2+1.20.1] - 2023.12.04
 ### Fixed
 - Fixed FastWorkbench, FastFurnace, and FastSuite integrations [#234](https://github.com/illusivesoulworks/polymorph/issues/234)
