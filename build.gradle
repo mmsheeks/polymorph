@@ -216,7 +216,7 @@ tasks.register('publishQuilt') {
 }
 
 tasks.register('publishFabricForge') {
-    dependsOn ordered(':forge:modrinth', 'forge:publishCurseForge', ':fabric:modrinth', ':fabric:publishCurseForge')
+    dependsOn ordered(':fabric:modrinth', ':fabric:publishCurseForge', ':forge:modrinth', 'forge:publishCurseForge')
 
     doLast {
         publishDiscord()
@@ -224,7 +224,7 @@ tasks.register('publishFabricForge') {
 }
 
 tasks.register('publishForgeQuilt') {
-    dependsOn ordered(':forge:modrinth', ':forge:publishCurseForge', ':quilt:modrinth', ':quilt:publishCurseForge')
+    dependsOn ordered(':quilt:modrinth', ':quilt:publishCurseForge', ':forge:modrinth', ':forge:publishCurseForge')
 
     doLast {
         publishDiscord()
@@ -232,7 +232,7 @@ tasks.register('publishForgeQuilt') {
 }
 
 tasks.register('publishFabricQuilt') {
-    dependsOn ordered(':fabric:modrinth', ':fabric:publishCurseForge', ':quilt:modrinth', ':quilt:publishCurseForge')
+    dependsOn ordered(':quilt:modrinth', ':quilt:publishCurseForge', ':fabric:modrinth', ':fabric:publishCurseForge')
 
     doLast {
         publishDiscord()
@@ -240,7 +240,7 @@ tasks.register('publishFabricQuilt') {
 }
 
 tasks.register('publishFabricForgeQuilt') {
-    dependsOn ordered(':forge:modrinth', ':forge:publishCurseForge', ':fabric:modrinth', ':fabric:publishCurseForge', ':quilt:modrinth', ':quilt:publishCurseForge')
+    dependsOn ordered(':quilt:modrinth', ':quilt:publishCurseForge', ':fabric:modrinth', ':fabric:publishCurseForge', ':forge:modrinth', ':forge:publishCurseForge')
 
     doLast {
         publishDiscord()
